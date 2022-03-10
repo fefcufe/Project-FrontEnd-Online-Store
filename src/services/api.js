@@ -3,5 +3,5 @@ export async function getCategories() {
 }
 
 export async function getProductsFromCategoryAndQuery(/* categoryId, query */) {
-  // Implemente aqui! ando o fizer, descomente os parâmetros que essa função recebe
+  // Implemente aqui! ando o izer, descomente os parâmetros que essa função recebe
 }

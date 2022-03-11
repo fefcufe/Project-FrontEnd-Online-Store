@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getCategories, getProductsFromQuery } from '../services/api';
+import {
+  getCategories,
+  getProductsFromQuery,
+  getProductsFromCategoryAndQuery,
+} from '../services/api';
 
 class Home extends React.Component {
   constructor() {
@@ -10,6 +14,8 @@ class Home extends React.Component {
       allCategories: [],
       searchWord: '',
       searchResult: [],
+      resultsQueryAndCat: [],
+      buttonCategoryClick: false,
     };
   }
 
@@ -36,11 +42,32 @@ class Home extends React.Component {
 
     this.setState({
       searchResult: [...result.results],
+      buttonCategoryClick: false,
+    });
+  }
+
+  handleButtonCategorySearch = async (event) => {
+    const buttonValue = event.target.value;
+    const { searchResult } = this.state;
+    const callSearchButton = await getProductsFromCategoryAndQuery(
+      buttonValue,
+      searchResult,
+    );
+    this.setState({
+      resultsQueryAndCat: [...callSearchButton.results],
+      buttonCategoryClick: true,
     });
   }
 
   render() {
-    const { allCategories, searchResult } = this.state;
+    const {
+      allCategories,
+      searchResult,
+      resultsQueryAndCat,
+      buttonCategoryClick } = this.state;
+
+    const comparClickEvent = (buttonCategoryClick) ? resultsQueryAndCat : searchResult;
+
     return (
       <div id="HomePage">
         <h3 data-testid="home-initial-message">
@@ -74,20 +101,21 @@ class Home extends React.Component {
               type="button"
               key={ categorieObject.id }
               data-testid="category"
+              onClick={ this.handleButtonCategorySearch }
+              value={ categorieObject.id }
             >
               { categorieObject.name }
             </button>
           ))}
         </section>
         <ul id="products">
-          { searchResult.map(({ id, price, thumbnail, title }) => (
+          { comparClickEvent.map(({ id, price, thumbnail, title }) => (
             <li data-testid="product" key={ id }>
               <p><strong>{ title }</strong></p>
               <img src={ thumbnail } alt="imagem produto" />
               <p>{ price }</p>
             </li>
           ))}
-
         </ul>
       </div>
     );

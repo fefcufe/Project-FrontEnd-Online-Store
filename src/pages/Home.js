@@ -111,7 +111,13 @@ class Home extends React.Component {
         <ul id="products">
           { comparClickEvent.map(({ id, price, thumbnail, title }) => (
             <li data-testid="product" key={ id }>
-              <p><strong>{ title }</strong></p>
+              <p>
+                <strong>
+                  <Link data-testid="product-detail-link" to={ `/productDetail/${id}` }>
+                    { title }
+                  </Link>
+                </strong>
+              </p>
               <img src={ thumbnail } alt="imagem produto" />
               <p>{ price }</p>
             </li>

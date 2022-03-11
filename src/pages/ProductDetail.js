@@ -38,6 +38,7 @@ class ProductDetail extends React.Component {
             Carrinho de compras
           </Link>
         </button>
+
         <div>
           <p data-testid="product-detail-name"><strong>{ name }</strong></p>
           <img src={ img } alt="imagem produto" />

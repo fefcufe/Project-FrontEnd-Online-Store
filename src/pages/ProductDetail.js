@@ -7,27 +7,47 @@ class ProductDetail extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: '',
-      img: '',
-      price: '',
-      details: [],
+      selectedProduct: {},
+      shoppingCart: [],
     };
   }
 
   async componentDidMount() {
+    if (!localStorage.getItem('shoppingCart')) {
+      localStorage.setItem('shoppingCart', JSON.stringify([]));
+    }
+    const shoppingCart = JSON.parse(localStorage.getItem('shoppingCart'));
+
     const { match: { params: { id } } } = this.props;
-    const productInfos = await getProductID(id);
-    console.log(productInfos);
+    const selectedProduct = await getProductID(id);
     this.setState({
-      name: productInfos.title,
-      img: productInfos.thumbnail,
-      price: productInfos.price,
-      details: [...productInfos.attributes],
+      selectedProduct,
+      shoppingCart,
     });
   }
 
+  handleButtonCartClick = (product) => {
+    const { shoppingCart } = this.state;
+
+    const productSearched = shoppingCart.findIndex((object) => object.id === product.id);
+    if (productSearched >= 0) {
+      const productAux = shoppingCart[productSearched];
+      shoppingCart[productSearched] = {
+        ...productAux,
+        quantity: productAux.quantity + 1,
+      };
+    } else {
+      shoppingCart.push({ ...product, quantity: 1 });
+    }
+    this.setState({
+      shoppingCart: [...shoppingCart],
+    });
+    localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
+  }
+
   render() {
-    const { name, img, price, details } = this.state;
+    const { selectedProduct } = this.state;
+
     return (
       <div>
         <button type="button">
@@ -40,16 +60,23 @@ class ProductDetail extends React.Component {
         </button>
 
         <div>
-          <p data-testid="product-detail-name"><strong>{ name }</strong></p>
-          <img src={ img } alt="imagem produto" />
-          <p>{ price }</p>
+          <p data-testid="product-detail-name"><strong>{ selectedProduct.title }</strong></p>
+          <img src={ selectedProduct.thumbnail } alt="imagem produto" />
+          <p>{ selectedProduct.price }</p>
           <ul>
-            {details.map(({ value_name: valueName, id, name: nome }) => (
+            {selectedProduct.attributes?.map(({ value_name: valueName, id, name: nome }) => (
               <li key={ id }>
                 <p>{`${nome}: ${valueName}`}</p>
               </li>
             ))}
           </ul>
+          <button
+            type="button"
+            data-testid="product-detail-add-to-cart"
+            onClick={ () => this.handleButtonCartClick(selectedProduct) }
+          >
+            Adicionar ao carrinho
+          </button>
         </div>
       </div>
     );

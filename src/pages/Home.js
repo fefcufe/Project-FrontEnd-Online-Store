@@ -16,17 +16,20 @@ class Home extends React.Component {
       searchResult: [],
       resultsQueryAndCat: [],
       buttonCategoryClick: false,
+      shoppingCart: [],
     };
   }
 
   async componentDidMount() {
     const result = await getCategories();
-
+    if (!localStorage.getItem('shoppingCart')) {
+      localStorage.setItem('shoppingCart', JSON.stringify([]));
+    }
+    const shoppingCart = JSON.parse(localStorage.getItem('shoppingCart'));
     this.setState({
+      shoppingCart,
       allCategories: [...result],
     });
-    /* const { allCategories } = this.state;
-    console.log(allCategories); */
   }
 
   handleChange = ({ target: { value } }) => {
@@ -38,12 +41,29 @@ class Home extends React.Component {
   handleClick = async () => {
     const { searchWord } = this.state;
     const result = await getProductsFromQuery(searchWord);
-    console.log(result);
 
     this.setState({
       searchResult: [...result.results],
       buttonCategoryClick: false,
     });
+  }
+
+  handleButtonCartClick = (product) => {
+    const { shoppingCart } = this.state;
+    const productSearched = shoppingCart.findIndex((object) => object.id === product.id);
+    if (productSearched >= 0) {
+      const productAux = shoppingCart[productSearched];
+      shoppingCart[productSearched] = {
+        ...productAux,
+        quantity: productAux.quantity + 1,
+      };
+    } else {
+      shoppingCart.push({ ...product, quantity: 1 });
+    }
+    this.setState({
+      shoppingCart: [...shoppingCart],
+    });
+    localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
   }
 
   handleButtonCategorySearch = async (event) => {
@@ -109,19 +129,29 @@ class Home extends React.Component {
           ))}
         </section>
         <ul id="products">
-          { comparClickEvent.map(({ id, price, thumbnail, title }) => (
-            <li data-testid="product" key={ id }>
-              <p>
-                <strong>
-                  <Link data-testid="product-detail-link" to={ `/productDetail/${id}` }>
-                    { title }
-                  </Link>
-                </strong>
-              </p>
-              <img src={ thumbnail } alt="imagem produto" />
-              <p>{ price }</p>
-            </li>
-          ))}
+          { comparClickEvent.map((product) => {
+            const { id, price, thumbnail, title } = product;
+            return (
+              <li data-testid="product" key={ id }>
+                <p>
+                  <strong>
+                    <Link data-testid="product-detail-link" to={ `/productDetail/${id}` }>
+                      { title }
+                    </Link>
+                  </strong>
+                </p>
+                <img src={ thumbnail } alt="imagem produto" />
+                <p>{ price }</p>
+                <button
+                  type="button"
+                  data-testid="product-add-to-cart"
+                  onClick={ () => this.handleButtonCartClick(product) }
+                >
+                  Adicionar ao carrinho
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );

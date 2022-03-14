@@ -60,16 +60,24 @@ class ProductDetail extends React.Component {
         </button>
 
         <div>
-          <p data-testid="product-detail-name"><strong>{ selectedProduct.title }</strong></p>
+          <p data-testid="product-detail-name">
+            <strong>{ selectedProduct.title }</strong>
+          </p>
           <img src={ selectedProduct.thumbnail } alt="imagem produto" />
           <p>{ selectedProduct.price }</p>
-          <ul>
-            {selectedProduct.attributes?.map(({ value_name: valueName, id, name: nome }) => (
-              <li key={ id }>
-                <p>{`${nome}: ${valueName}`}</p>
-              </li>
-            ))}
-          </ul>
+          {
+            selectedProduct.attributes && (
+              <ul>
+                {selectedProduct.attributes.map(
+                  ({ value_name: valueName, id, name: nome }) => (
+                    <li key={ id }>
+                      <p>{`${nome}: ${valueName}`}</p>
+                    </li>
+                  ),
+                )}
+              </ul>
+            )
+          }
           <button
             type="button"
             data-testid="product-detail-add-to-cart"

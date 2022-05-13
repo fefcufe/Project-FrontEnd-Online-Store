@@ -13,7 +13,6 @@ Esse projeto foi desenvolvido em grupo no módulo de front-end da Trybe. O proje
    
 ---
 
----
 # Grupo 
 
   - [Anna Beatriz Trajano de Sá](https://github.com/annabia95)
